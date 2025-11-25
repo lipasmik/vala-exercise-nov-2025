@@ -16,6 +16,8 @@ class MultiplesHandler:
         output_file = self.output_file
         if input_file == output_file:
             raise ValueError("Input and output file names must be different.")
+        if not os.path.exists(input_file):
+            raise FileNotFoundError(f"Input file {input_file} does not exist.")
         if os.path.getsize(input_file) == 0:
             raise ValueError("Input file is empty.")
         try:
@@ -32,8 +34,6 @@ class MultiplesHandler:
                             raise ValueError("Input file contains values < 1.")
         except UnicodeDecodeError:
             raise UnicodeDecodeError("Input file contains non unicode characters.")
-        except FileNotFoundError:
-            raise FileNotFoundError(f"Input file {input_file} not found.")
         except PermissionError:
             raise PermissionError(f"Permission denied for file {input_file}.")
 
