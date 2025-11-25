@@ -8,6 +8,10 @@ class MultiplesHandler:
 
 
     def validate_input(self) -> None:
+        '''
+        Validates the input file for various conditions, like empty or non-existing file,
+        correct amount of numbers per line, and natural number checks.
+        '''
         input_file = self.input_file
         output_file = self.output_file
         if input_file == output_file:
@@ -34,7 +38,11 @@ class MultiplesHandler:
             raise PermissionError(f"Permission denied for file {input_file}.")
 
 
-    def process_multiples(self)-> list:
+    def process_multiples(self)-> list[tuple]:
+        '''
+        Processes the input file to find multiples of two numbers up to a goal number.
+        Returns a sorted list of tuples containing the goal number and its corresponding multiples.
+        '''
         all_results = {}
         with open(self.input_file, 'r') as file:
             for line in file:
@@ -53,7 +61,10 @@ class MultiplesHandler:
             return all_results_sorted
 
 
-    def output_results(self, all_results_sorted: list):
+    def output_results(self, all_results_sorted: list)-> None:
+        '''
+        Outputs the results to the console and writes them to the output file.
+        '''
         for item in all_results_sorted:
             print(f'{item[0]}:{" ".join(map(str, item[1]))}')
         with open(self.output_file, 'w') as file:
