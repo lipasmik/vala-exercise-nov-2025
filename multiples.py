@@ -22,18 +22,22 @@ class MultiplesHandler:
             raise ValueError("Input file is empty.")
         try:
             with open(input_file, 'r') as file:
-                for line in file:
+                for line_number, line in enumerate(file, 1):
                     line = line.replace('\n', '')
-                    line_numbers = line.split(' ')
-                    if len(line_numbers) != 3:
-                        raise ValueError("Each line must contain exactly three numbers.")
-                    for number in line_numbers:
+                    if len(line) == 0:
+                        raise ValueError(f"{input_file}: {line_number}: line is empty.")
+                    if line[0] == ' ' or line[-1] == ' ':
+                        raise ValueError(f"{input_file}: {line_number}: line contains leading or trailing spaces")
+                    numbers_in_line = line.strip().split()
+                    if len(numbers_in_line) != 3:
+                        raise ValueError(f"{input_file}: {line_number}: each line must contain exactly three numbers.")
+                    for number in numbers_in_line:
                         if not number.isdigit():
-                            raise TypeError("Input file contains non natural values.")
+                            raise TypeError(f"{input_file}: {line_number}: line contains non natural values.")
                         if int(number) < 1:
-                            raise ValueError("Input file contains values < 1.")
+                            raise ValueError(f"{input_file}: {line_number}: line contains values < 1.")
         except UnicodeDecodeError:
-            raise UnicodeDecodeError("Input file contains non unicode characters.")
+            raise UnicodeDecodeError(f"{input_file} contains non unicode characters.")
         except PermissionError:
             raise PermissionError(f"Permission denied for file {input_file}.")
 
@@ -43,7 +47,7 @@ class MultiplesHandler:
         Processes the input file to find multiples of two numbers up to a goal number.
         Returns a sorted list of tuples containing the goal number and its corresponding multiples.
         '''
-        all_results = {}
+        all_results = []
         with open(self.input_file, 'r') as file:
             for line in file:
                 results = []
@@ -51,13 +55,13 @@ class MultiplesHandler:
                 num1, num2, goal_number = map(int, line.split(' '))
                 for i in range(1, goal_number):
                     valid_multipliers = [i*number for number in [num1, num2] if i*number < goal_number]
-                    results.extend(valid_multipliers)
+                    results.extend(list(set(valid_multipliers)))
                     if i*num1 >= goal_number and i*num2 >= goal_number:
                         break
                 results = list(set(results))
                 results.sort()
-                all_results[goal_number] = results
-            all_results_sorted = sorted(all_results.items(), key=lambda x: len(x[1]))
+                all_results.append((goal_number, results))
+            all_results_sorted = sorted(all_results, key=lambda x: len(x[1]))
             return all_results_sorted
 
 
@@ -68,8 +72,12 @@ class MultiplesHandler:
         for item in all_results_sorted:
             print(f'{item[0]}:{" ".join(map(str, item[1]))}')
         with open(self.output_file, 'w') as file:
-            for item in all_results_sorted:
-                file.write(f'{item[0]}:{" ".join(map(str, item[1]))}\n')
+            for i, item in enumerate(all_results_sorted):
+                line = f'{item[0]}:{" ".join(map(str, item[1]))}'
+                if i != len(all_results_sorted) - 1:
+                    line += '\n'
+                file.write(line)
+
 
 
 def parse_args():
